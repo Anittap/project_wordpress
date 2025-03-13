@@ -30,12 +30,6 @@ module "wp-igw" {
   project_environment = var.project_environment
   project_name        = var.project_name
 }
-module "db-igw" {
-  source              = "../modules/igw"
-  vpc_id              = module.db_vpc.vpc_id
-  project_environment = var.project_environment
-  project_name        = var.project_name
-}
 module "wp_rt" {
   source                    = "../modules/rt"
   project_environment       = var.project_environment
@@ -58,7 +52,7 @@ module "db_rt" {
   subnet_id                 = module.db_vpc.private_subnet_ids
   vpc_peering_connection_id = module.peering_connection.id
   peer_cidr_block           = var.wp_cidr_block
-  internet_gateway_id       = module.db-igw.igw_id
+  internet_gateway_id       = null
   enable_peering            = true
   enable_internet           = false
 }
