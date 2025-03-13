@@ -56,3 +56,20 @@ module "db_rt" {
   enable_peering            = true
   enable_internet           = false
 }
+
+module "wp_sg" {
+  source              = "../modules/sg"
+  project_name        = var.project_name
+  project_environment = var.project_environment
+  name                = "wp"
+  description         = "wp security group"
+  vpc_id              = module.wp_vpc.vpc_id
+}
+module "db_sg" {
+  source              = "../modules/sg"
+  project_name        = var.project_name
+  project_environment = var.project_environment
+  name                = "db"
+  description         = "db security group"
+  vpc_id              = module.db_vpc.vpc_id
+}
