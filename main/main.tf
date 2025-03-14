@@ -75,7 +75,12 @@ module "ssl" {
   domain_name = data.aws_route53_zone.main.name
   zone_id     = data.aws_route53_zone.main.zone_id
 }
-
+module "key_pair" {
+  source              = "../modules/key-pair"
+  key_file            = file("../mykey.pub")
+  project_name        = var.project_name
+  project_environment = var.project_environment
+}
 # module "wp_sg" {
 #   source              = "../modules/sg"
 #   project_name        = var.project_name
