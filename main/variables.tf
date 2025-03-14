@@ -27,3 +27,19 @@ variable "db_cidr_block" {
   type        = string
   description = "cidr block for db vpc"
 }
+variable "lb_sg_ports" {
+  type        = list(string)
+  description = "lb sg ports"
+}
+variable "wp_sg_ports" {
+  type        = list(string)
+  description = "wp sg ports"
+}
+variable "db_sg_ports" {
+  type        = list(string)
+  description = "db sg ports"
+}
+variable "domain_name" {
+  type        = string
+  description = "domain name"
+}
