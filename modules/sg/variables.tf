@@ -23,10 +23,6 @@ variable "sg_ports" {
   type        = list(string)
   description = "sg ports"
 }
-variable "name" {
-  type        = string
-  description = "sg name"
-}
 variable "sg_reference_id" {
   type        = string
   description = "sg reference id"
