@@ -126,5 +126,22 @@ module "wp_lt" {
   ami_id              = data.aws_ami.packer_ami.id
   key_pair            = module.key_pair.key_name
   sg_id               = module.wp_sg.id
+  instance_type             = var.instance_type
+
+}
+module "wp_asg" {
+  source                    = "../modules/asg"
+  project_name              = var.project_name
+  project_environment       = var.project_environment
+  name                      = "wp"
+  max_size                  = var.wp_max_size
+  min_size                  = var.wp_min_size
+  desired_size              = var.wp_desired_size
+  health_check_grace_period = var.wp_health_check_grace_period
+  enable_elb_health_checks  = var.wp_enable_elb_health_checks
+  private_subnets           = module.wp_vpc.private_subnet_ids
+  lt_id                     = module.wp_lt.id
+  lt_version                = module.wp_lt.version
 }
 //lt > asg > tg > alb > rds > bastion >ansible > nacl > 
+// make subnet count a variable

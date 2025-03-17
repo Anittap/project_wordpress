@@ -5,7 +5,7 @@ resource "aws_route_table" "main" {
   }
 }
 resource "aws_route_table_association" "main" {
-  count          = 3
+  count          = 2
   subnet_id      = var.subnet_id[count.index]
   route_table_id = aws_route_table.main.id
 }

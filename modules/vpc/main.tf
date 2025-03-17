@@ -7,10 +7,10 @@ resource "aws_vpc" "main" {
   }
 }
 resource "aws_subnet" "public" {
-  count                   = 3
+  count                   = 2
   vpc_id                  = aws_vpc.main.id
   cidr_block              = cidrsubnet(var.cidr_block, var.bits, count.index)
-  availability_zone       = data.aws_availability_zones.virginia.names[count.index]
+  availability_zone       = data.aws_availability_zones.main.names[count.index]
   map_public_ip_on_launch = true
 
   tags = {
@@ -19,10 +19,10 @@ resource "aws_subnet" "public" {
   }
 }
 resource "aws_subnet" "private" {
-  count             = 3
+  count             = 2
   vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.cidr_block, var.bits, count.index + 3)
-  availability_zone = data.aws_availability_zones.virginia.names[count.index +3]
+  cidr_block        = cidrsubnet(var.cidr_block, var.bits, count.index + 2)
+  availability_zone = data.aws_availability_zones.main.names[count.index +2]
 
 
   tags = {

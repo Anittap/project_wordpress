@@ -26,3 +26,7 @@ variable "sg_id" {
   description = "The security group ID to associate with the instances"
   type        = string
 }
+variable "instance_type" {
+  type        = map(any)
+  description = "map of instance type"
+}

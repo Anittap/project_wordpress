@@ -3,7 +3,7 @@ variable "regions" {
   description = "AWS region maps"
   default = {
     "production" : "ap-south-1"
-    "development" : "us-east-1"
+    "development" : "us-west-2"
   }
 }
 variable "environment" {

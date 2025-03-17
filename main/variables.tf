@@ -76,3 +76,31 @@ variable "db_egress_port" {
   type        = string
   description = "Egress port for database"
 }
+variable "wp_max_size" {
+  type        = number
+  description = "Maximum size of the WordPress ASG"
+}
+
+variable "wp_min_size" {
+  type        = number
+  description = "Minimum size of the WordPress ASG"
+}
+
+variable "wp_desired_size" {
+  type        = number
+  description = "Desired size of the WordPress ASG"
+}
+
+variable "wp_health_check_grace_period" {
+  type        = number
+  description = "Health check grace period for the WordPress ASG"
+}
+
+variable "wp_enable_elb_health_checks" {
+  type        = map(any)
+  description = "Enable ELB health checks for the WordPress ASG"
+}
+variable "instance_type" {
+  type        = map(any)
+  description = "map of instance type"
+}
