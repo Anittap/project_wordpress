@@ -57,3 +57,22 @@ variable "lb_egress_port" {
   type        = string
   description = "Egress port for load balancer"
 }
+variable "wp_egress_cidr_ipv4" {
+  type        = string
+  description = "Egress CIDR blocks for WordPress"
+}
+
+variable "wp_egress_port" {
+  type        = string
+  description = "Egress port for WordPress"
+}
+
+variable "db_egress_cidr_ipv4" {
+  type        = string
+  description = "Egress CIDR blocks for database"
+}
+
+variable "db_egress_port" {
+  type        = string
+  description = "Egress port for database"
+}

@@ -35,22 +35,3 @@ variable "egress_port" {
   type        = string
   description = "egress port"
 }
-variable "sg_ports" {
-  type        = list(string)
-  description = "List of security group ports"
-}
-
-variable "sg_reference_id" {
-  type        = string
-  description = "Referenced security group ID"
-}
-
-variable "egress_cidr_ipv4" {
-  type        = string
-  description = "Egress CIDR IPv4"
-}
-
-variable "egress_port" {
-  type        = string
-  description = "Egress port"
-}
