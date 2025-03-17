@@ -38,3 +38,11 @@ variable "enable_peering" {
   description = "Enable VPC peering route"
   type        = bool
 }
+variable "enable_nat_gateway" {
+  description = "Enable NAT Gateway"
+  type        = bool
+}
+variable "nat_gateway_id" {
+  type        = string
+  description = "NAT Gateway ID"
+}

@@ -24,3 +24,10 @@ resource "aws_route" "internet_route" {
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = var.internet_gateway_id
 }
+resource "aws_route" "nat_gateway_route" {
+  count = var.enable_nat_gateway ? 1 : 0
+
+  route_table_id         = aws_route_table.main.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = var.nat_gateway_id
+}

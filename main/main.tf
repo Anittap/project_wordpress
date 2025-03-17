@@ -30,6 +30,12 @@ module "lb-igw" {
   project_environment = var.project_environment
   project_name        = var.project_name
 }
+module "wp_nat_gateway" {
+  source              = "../modules/natgw"
+  project_name        = var.project_name
+  project_environment = var.project_environment
+  public_subnet_id    = module.wp_vpc.public_subnet_ids[1]
+}
 module "lb_rt" {
   source                    = "../modules/rt"
   project_environment       = var.project_environment
@@ -42,6 +48,8 @@ module "lb_rt" {
   internet_gateway_id       = module.lb-igw.igw_id
   enable_peering            = false
   enable_internet           = true
+  enable_nat_gateway        = false
+  nat_gateway_id            = null
 }
 module "wp_rt" {
   source                    = "../modules/rt"
@@ -55,6 +63,8 @@ module "wp_rt" {
   internet_gateway_id       = null
   enable_peering            = true
   enable_internet           = false
+  enable_nat_gateway        = true
+  nat_gateway_id            = module.wp_nat_gateway.id
 }
 
 module "db_rt" {
@@ -69,6 +79,8 @@ module "db_rt" {
   internet_gateway_id       = null
   enable_peering            = true
   enable_internet           = false
+  enable_nat_gateway        = false
+  nat_gateway_id            = null
 }
 module "ssl" {
   source      = "../modules/acm"
@@ -126,7 +138,7 @@ module "wp_lt" {
   ami_id              = data.aws_ami.packer_ami.id
   key_pair            = module.key_pair.key_name
   sg_id               = module.wp_sg.id
-  instance_type             = var.instance_type
+  instance_type       = var.instance_type
 
 }
 module "wp_asg" {
