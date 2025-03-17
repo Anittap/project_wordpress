@@ -43,3 +43,17 @@ variable "domain_name" {
   type        = string
   description = "domain name"
 }
+variable "lb_ingress_cidr_ipv4" {
+  type        = string
+  description = "Ingress CIDR blocks for load balancer"
+}
+
+variable "lb_egress_cidr_ipv4" {
+  type        = string
+  description = "Egress CIDR blocks for load balancer"
+}
+
+variable "lb_egress_port" {
+  type        = string
+  description = "Egress port for load balancer"
+}

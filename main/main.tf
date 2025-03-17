@@ -81,19 +81,39 @@ module "key_pair" {
   project_name        = var.project_name
   project_environment = var.project_environment
 }
+module "lb_sg" {
+  source              = "../modules/sg/default_sg"
+  project_name        = var.project_name
+  project_environment = var.project_environment
+  name                = "lb"
+  description         = "Load balancer security group"
+  vpc_id              = module.wp_vpc.vpc_id
+  sg_ports            = var.lb_sg_ports
+  ingress_cidr_ipv4   = var.lb_ingress_cidr_ipv4
+  egress_cidr_ipv4    = var.lb_egress_cidr_ipv4
+  egress_port         = var.lb_egress_port
+}
 # module "wp_sg" {
-#   source              = "../modules/sg"
+#   source              = "../modules/sg/sg_reference_sg"
 #   project_name        = var.project_name
 #   project_environment = var.project_environment
 #   name                = "wp"
 #   description         = "wp security group"
 #   vpc_id              = module.wp_vpc.vpc_id
+#   sg_ports          = var.wp_sg_ports
+#   sg_reference_id   = module.db_sg.security_group_id
+#   egress_cidr_ipv4  = var.wp_egress_cidr_ipv4
+#   egress_port       = var.wp_egress_port
 # }
 # module "db_sg" {
-#   source              = "../modules/sg"
+#   source              = "../modules/sg/sg_reference_sg"
 #   project_name        = var.project_name
 #   project_environment = var.project_environment
 #   name                = "db"
 #   description         = "db security group"
 #   vpc_id              = module.db_vpc.vpc_id
+#   sg_ports          = var.db_sg_ports
+#   egress_cidr_ipv4  = var.db_egress_cidr_ipv4
+#   egress_port       = var.db_egress_port
 # }
+// create alb sg > wp, db sg > lt > asg > tg > alb > rds > ansible > nacl > 
