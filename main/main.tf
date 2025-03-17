@@ -118,4 +118,13 @@ module "db_sg" {
   sg_reference_id     = module.wp_sg.id
 
 }
-# // create alb sg > wp, db sg > lt > asg > tg > alb > rds > ansible > nacl > 
+module "wp_lt" {
+  source              = "../modules/lt"
+  project_name        = var.project_name
+  project_environment = var.project_environment
+  name                = "wp"
+  ami_id              = data.aws_ami.packer_ami.id
+  key_pair            = module.key_pair.key_name
+  sg_id               = module.wp_sg.id
+}
+//lt > asg > tg > alb > rds > bastion >ansible > nacl > 
