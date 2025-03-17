@@ -190,6 +190,10 @@ module "tg" {
   unhealthy_threshold           = var.unhealthy_threshold
   matcher                       = var.matcher
 }
-// tg > alb > rds > bastion >ansible > nacl > 
+module "asg_to_tg_attachment" {
+  source              = "../modules/tg_to_asg_attatchment"
+  tg_arn              = module.tg.arn
+  asg_id              = module.wp_asg.id
+}
 // make subnet count a variable
 //store db password in ssm
