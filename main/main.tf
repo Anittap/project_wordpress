@@ -191,9 +191,26 @@ module "tg" {
   matcher                       = var.matcher
 }
 module "asg_to_tg_attachment" {
-  source              = "../modules/tg_to_asg_attatchment"
-  tg_arn              = module.tg.arn
-  asg_id              = module.wp_asg.id
+  source = "../modules/tg_to_asg_attatchment"
+  tg_arn = module.tg.arn
+  asg_id = module.wp_asg.id
+}
+module "alb" {
+  source                     = "../modules/alb"
+  project_name               = var.project_name
+  project_environment        = var.project_environment
+  name                       = "alb"
+  lb_type                    = var.lb_type
+  sg_id                      = module.lb_sg.id
+  subnet_ids                 = module.wp_vpc.public_subnet_ids
+  enable_deletion_protection = var.enable_deletion_protection
+  https_listener_port        = var.https_listener_port
+  certificate_arn            = module.ssl.arn
+  tg_arn                     = module.tg.arn
+  domain_name                = data.aws_route53_zone.main.name
+  zone_id                    = data.aws_route53_zone.main.zone_id
+  http_listener_port         = var.http_listener_port
+  type                       = var.type
 }
 // make subnet count a variable
 //store db password in ssm

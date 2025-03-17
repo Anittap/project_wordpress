@@ -206,3 +206,25 @@ variable "matcher" {
   type        = string
   description = "Matcher for the target group"
 }
+variable "lb_type" {
+  type        = string
+  description = "Load balancer type"
+}
+
+variable "enable_deletion_protection" {
+  type        = bool
+  description = "Enable deletion protection for the load balancer"
+}
+
+variable "https_listener_port" {
+  type        = number
+  description = "HTTPS listener port for the load balancer"
+}
+variable "http_listener_port" {
+  type        = number
+  description = "HTTP listener port for the load balancer"
+}
+variable "type" {
+  type        = bool
+  description = "Type of the load balancer"
+}
