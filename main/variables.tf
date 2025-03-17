@@ -104,3 +104,42 @@ variable "instance_type" {
   type        = map(any)
   description = "map of instance type"
 }
+variable "db_name" {
+  type        = string
+  description = "Database name"
+}
+
+variable "allocated_storage" {
+  type        = number
+  description = "Allocated storage for the database"
+}
+
+variable "storage_type" {
+  type        = string
+  description = "Storage type for the database"
+}
+
+variable "engine" {
+  type        = string
+  description = "Database engine"
+}
+
+variable "engine_version" {
+  type        = string
+  description = "Database engine version"
+}
+
+variable "instance_class" {
+  type        = string
+  description = "Database instance class"
+}
+
+variable "db_username" {
+  type        = string
+  description = "Database username"
+}
+
+variable "db_password" {
+  type        = string
+  description = "Database password"
+}

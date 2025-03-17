@@ -155,5 +155,21 @@ module "wp_asg" {
   lt_id                     = module.wp_lt.id
   lt_version                = module.wp_lt.version
 }
+
+module "db_instance" {
+  source                 = "../modules/rds"
+  project_name           = var.project_name
+  db_name                = var.db_name
+  allocated_storage      = var.allocated_storage
+  storage_type           = var.storage_type
+  engine                 = var.engine
+  engine_version         = var.engine_version
+  instance_class         = var.instance_class
+  db_username            = var.db_username
+  db_password            = var.db_password
+  subnet_ids             = module.db_vpc.private_subnet_ids
+  sg_id                  = module.db_sg.id
+}
 //lt > asg > tg > alb > rds > bastion >ansible > nacl > 
 // make subnet count a variable
+//store db password in ssm
