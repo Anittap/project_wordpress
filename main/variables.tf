@@ -143,3 +143,66 @@ variable "db_password" {
   type        = string
   description = "Database password"
 }
+variable "load_balancing_algorithm_type" {
+  type        = string
+  description = "Load balancing algorithm type"
+}
+
+variable "port" {
+  type        = number
+  description = "Port for the target group"
+}
+
+variable "protocol" {
+  type        = string
+  description = "Protocol for the target group"
+}
+
+variable "deregistration_delay" {
+  type        = number
+  description = "Deregistration delay for the target group"
+}
+
+variable "stickiness_type" {
+  type        = string
+  description = "Stickiness type for the target group"
+}
+
+variable "cookie_duration" {
+  type        = number
+  description = "Cookie duration for the target group"
+}
+
+variable "health_check_enabled" {
+  type        = bool
+  description = "Enable health checks for the target group"
+}
+
+variable "healthy_threshold" {
+  type        = number
+  description = "Healthy threshold for the target group"
+}
+
+variable "interval" {
+  type        = number
+  description = "Interval for health checks"
+}
+
+variable "path" {
+  type        = string
+  description = "Path for health checks"
+}
+
+variable "health_check_protocol" {
+  type        = string
+  description = "Protocol for health checks"
+}
+
+variable "unhealthy_threshold" {
+  type        = number
+  description = "Unhealthy threshold for the target group"
+}
+variable "matcher" {
+  type        = string
+  description = "Matcher for the target group"
+}

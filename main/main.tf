@@ -157,19 +157,39 @@ module "wp_asg" {
 }
 
 module "db_instance" {
-  source                 = "../modules/rds"
-  project_name           = var.project_name
-  db_name                = var.db_name
-  allocated_storage      = var.allocated_storage
-  storage_type           = var.storage_type
-  engine                 = var.engine
-  engine_version         = var.engine_version
-  instance_class         = var.instance_class
-  db_username            = var.db_username
-  db_password            = var.db_password
-  subnet_ids             = module.db_vpc.private_subnet_ids
-  sg_id                  = module.db_sg.id
+  source            = "../modules/rds"
+  project_name      = var.project_name
+  db_name           = var.db_name
+  allocated_storage = var.allocated_storage
+  storage_type      = var.storage_type
+  engine            = var.engine
+  engine_version    = var.engine_version
+  instance_class    = var.instance_class
+  db_username       = var.db_username
+  db_password       = var.db_password
+  subnet_ids        = module.db_vpc.private_subnet_ids
+  sg_id             = module.db_sg.id
 }
-//lt > asg > tg > alb > rds > bastion >ansible > nacl > 
+module "tg" {
+  source                        = "../modules/tg"
+  project_name                  = var.project_name
+  project_environment           = var.project_environment
+  name                          = "tg"
+  load_balancing_algorithm_type = var.load_balancing_algorithm_type
+  port                          = var.port
+  protocol                      = var.protocol
+  vpc_id                        = module.wp_vpc.vpc_id
+  deregistration_delay          = var.deregistration_delay
+  stickiness_type               = var.stickiness_type
+  cookie_duration               = var.cookie_duration
+  health_check_enabled          = var.health_check_enabled
+  healthy_threshold             = var.healthy_threshold
+  interval                      = var.interval
+  path                          = var.path
+  health_check_protocol         = var.health_check_protocol
+  unhealthy_threshold           = var.unhealthy_threshold
+  matcher                       = var.matcher
+}
+// tg > alb > rds > bastion >ansible > nacl > 
 // make subnet count a variable
 //store db password in ssm
