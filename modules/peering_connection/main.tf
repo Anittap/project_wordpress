@@ -7,3 +7,12 @@ resource "aws_vpc_peering_connection" "main" {
     Name = "${var.project_name}-${var.project_environment}-peering-connection"
   }
 }
+resource "aws_vpc_peering_connection_options" "options" {
+  vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+  requester {
+    allow_remote_vpc_dns_resolution = true
+  }
+  accepter {
+    allow_remote_vpc_dns_resolution = true
+  }
+}
