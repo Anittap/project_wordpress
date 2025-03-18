@@ -51,3 +51,4 @@ enable_deletion_protection    = false
 https_listener_port           = 443
 http_listener_port            = 80
 type                          = false
+private_zone_name             = "anitta.redux.com"

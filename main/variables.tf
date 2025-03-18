@@ -228,3 +228,7 @@ variable "type" {
   type        = bool
   description = "Type of the load balancer"
 }
+variable "private_zone_name" {
+  type        = string
+  description = "Private zone name"
+}

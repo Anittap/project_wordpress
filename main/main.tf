@@ -170,6 +170,13 @@ module "db_instance" {
   subnet_ids        = module.db_vpc.private_subnet_ids
   sg_id             = module.db_sg.id
 }
+module "private_db_zone" {
+  source            = "../modules/pvt_hosted_zone"
+  private_zone_name = var.private_zone_name
+  vpc_id            = module.db_vpc.vpc_id
+  rds_record_name   = "db"
+  rds_endpoint      = module.db_instance.address
+}
 module "tg" {
   source                        = "../modules/tg"
   project_name                  = var.project_name
