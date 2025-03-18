@@ -1,9 +1,4 @@
-variable "private_zone_name" {
-    description = "The name of the private hosted zone"
-    type        = string
-}
-
-variable "vpc_id" {
+variable "zone_id" {
     description = "The ID of the VPC"
     type        = string
 }
