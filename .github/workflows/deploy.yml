@@ -48,31 +48,25 @@ jobs:
           echo "BASTION_IP=$(terraform output -raw bastion_public_ip)" >> $GITHUB_ENV
           terraform output -json wordpress_private_ips | jq -r '.[]' > ../ansible/inventory_ips.txt
 
-      - name: Run Ansible Playbook from Bastion
+      - name: Copy Files to Bastion & Run Ansible
         run: |
+          # Copy required files to the Bastion
+          scp -o StrictHostKeyChecking=no -i mykey ansible/inventory_ips.txt ubuntu@${{ env.BASTION_IP }}:~
+          scp -o StrictHostKeyChecking=no -i mykey ansible/playbook.yml ubuntu@${{ env.BASTION_IP }}:~
+          
+          # SSH into the Bastion and execute Ansible
           ssh -o StrictHostKeyChecking=no -i mykey ubuntu@${{ env.BASTION_IP }} << 'EOF'
             echo "Running on $(hostname)"
-            
-            # Ensure Ansible is installed
-            sudo yum install -y ansible
 
-            # Create Ansible directory
-            mkdir -p ~/ansible
-            cd ~/ansible
+            # Ensure Ansible is installed (Ubuntu uses `apt`)
+            sudo apt update && sudo apt install -y ansible
 
-            # Copy the inventory file
+            # Create Ansible inventory file
             echo "[wordpress]" > inventory.ini
-            cat <<EOL >> inventory.ini
-          $(cat ansible/inventory_ips.txt)
-          EOL
+            cat ~/inventory_ips.txt >> inventory.ini
             echo "" >> inventory.ini
             echo "[wordpress:vars]" >> inventory.ini
             echo "ansible_user=ec2-user" >> inventory.ini
-
-            # Copy the Ansible playbook from GitHub Runner to Bastion
-            cat <<'EOP' > playbook.yml
-          $(cat ansible/playbook.yml)
-          EOP
 
             # Run Ansible Playbook
             echo "Executing Ansible Playbook..."
