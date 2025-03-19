@@ -251,4 +251,5 @@ module "bastion_to_wp" {
   sg_id        = module.wp_sg.id
   referenced_security_group_id = module.bastion_sg.id
 }
-// make subnet count a variable
+// fix wp-admin error
+// create nacl

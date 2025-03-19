@@ -104,8 +104,8 @@
       file:
         path: /var/www/html/
         state: directory
-        owner: nginx
-        group: nginx
+        owner: root
+        group: root
         mode: "0775"
         recurse: yes
 
@@ -113,8 +113,8 @@
       template:
         src: templates/wp-config.php.j2
         dest: /var/www/html/wp-config.php
-        owner: nginx
-        group: nginx
+        owner: root
+        group: root
         mode: "0644"
       notify: Restart Nginx
 
@@ -137,8 +137,8 @@
           <IfModule mod_headers.c>
           Header always set Content-Security-Policy "upgrade-insecure-requests"
           </IfModule>
-        owner: nginx
-        group: nginx
+        owner: root
+        group: root
         mode: "0644"
 
   handlers:
