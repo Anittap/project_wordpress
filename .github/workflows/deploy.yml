@@ -18,6 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ✅ Create Key Files FIRST before Terraform, since Terraform depends on them
       - name: Create Key Files
         run: |
           echo "${{ secrets.MY_KEY_PUB }}" > mykey.pub
@@ -48,14 +49,27 @@ jobs:
           echo "BASTION_IP=$(terraform output -raw bastion_public_ip)" >> $GITHUB_ENV
           terraform output -json wordpress_private_ips | jq -r '.[]' > ../ansible/inventory_ips.txt
 
+      - name: Debug Bastion IP
+        run: |
+         echo "Bastion IP: ${{ env.BASTION_IP }}"
+
+
+      # ✅ Copy the private key and Ansible files to Bastion
+      - name: Copy Private Key to Bastion
+        run: |
+          scp -o StrictHostKeyChecking=no -i mykey mykey ubuntu@${{ env.BASTION_IP }}:~/mykey
+          scp -o StrictHostKeyChecking=no -i mykey mykey.pub ubuntu@${{ env.BASTION_IP }}:~/mykey.pub
+          ssh -o StrictHostKeyChecking=no -i mykey ubuntu@${{ env.BASTION_IP }} "chmod 600 ~/mykey"
+
       - name: Copy Ansible Files to Bastion
         run: |
           scp -o StrictHostKeyChecking=no -i mykey ansible/inventory_ips.txt ubuntu@${{ env.BASTION_IP }}:~
           scp -o StrictHostKeyChecking=no -i mykey -r ansible ubuntu@${{ env.BASTION_IP }}:~
 
+      # ✅ SSH into Bastion and Run Ansible
       - name: SSH into Bastion and Run Ansible
         run: |
-          ssh -o StrictHostKeyChecking=no -i mykey ubuntu@${{ env.BASTION_IP }} << 'EOF'
+          ssh -t -o StrictHostKeyChecking=no -i mykey ubuntu@${{ env.BASTION_IP }} << 'EOF'
             echo "Running on $(hostname)"
 
             # Ensure Ansible is installed
@@ -67,6 +81,7 @@ jobs:
             echo "" >> ~/ansible/inventory.ini
             echo "[wordpress:vars]" >> ~/ansible/inventory.ini
             echo "ansible_user=ec2-user" >> ~/ansible/inventory.ini
+            echo "ansible_ssh_private_key_file=~/mykey" >> ~/ansible/inventory.ini
             echo "ansible_ssh_common_args=\"-o StrictHostKeyChecking=no\"" >> ~/ansible/inventory.ini
 
             # Run Ansible Playbook
