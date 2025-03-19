@@ -128,8 +128,8 @@
       template:
         src: templates/wp-config.php.j2
         dest: /var/www/html/wp-config.php
-        owner: root
-        group: root
+        owner: nginx
+        group: nginx
         mode: "0644"
       notify: Restart Nginx
 
