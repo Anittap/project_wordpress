@@ -50,13 +50,13 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.BASTION_PEM }}" > ~/.ssh/bastion.pem
-          chmod 600 ~/.ssh/bastion.pem
+          chmod 400 ~/.ssh/bastion.pem
 
       - name: Set up Target Instance SSH Key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.TARGET_INSTANCE_PEM }}" > ~/.ssh/target.pem
-          chmod 600 ~/.ssh/target.pem
+          chmod 400 ~/.ssh/target.pem
 
       - name: Generate Ansible Inventory
         run: |
@@ -65,6 +65,7 @@ jobs:
           echo "" >> ansible/inventory.ini
           echo "[wordpress:vars]" >> ansible/inventory.ini
           echo "ansible_ssh_common_args='-o ProxyCommand=\"ssh -W %h:%p -q -i ~/.ssh/bastion.pem ubuntu@${{ env.BASTION_IP }}\"'" >> ansible/inventory.ini
+          echo "ansible_user=ec2-user" >> ansible/inventory.ini
           echo "Generated inventory:"
           cat ansible/inventory.ini
 
