@@ -22,6 +22,7 @@ jobs:
         run: |
           echo "${{ secrets.MY_KEY_PUB }}" > mykey.pub
           chmod 600 mykey.pub
+          echo "${{ secrets.TARGET_INSTANCE_PEM }}" > mykey
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
@@ -56,6 +57,7 @@ jobs:
           echo "ansible_user=ec2-user" >> ansible/inventory.ini
           echo "Generated inventory:"
           cat ansible/inventory.ini
+          cat mykey
 
       - name: Run Ansible Playbook
         run: |
