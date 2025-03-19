@@ -44,7 +44,7 @@ jobs:
           echo "DB_USER=$(terraform output -raw db_username)" >> $GITHUB_ENV
           echo "DB_PASS=$(terraform output -raw db_password)" >> $GITHUB_ENV
           echo "BASTION_IP=$(terraform output -raw bastion_public_ip)" >> $GITHUB_ENV
-          terraform output -json wordpress_private_ips | jq -r '.[]' > ansible/inventory_ips.txt
+          terraform output -json wordpress_private_ips | jq -r '.[]' > ../ansible/inventory_ips.txt
 
       - name: Set up Bastion SSH Key
         run: |
