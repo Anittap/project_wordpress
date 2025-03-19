@@ -100,14 +100,31 @@
         remote_src: yes
         extra_opts:
           - --strip-components=1
-    - name: Ensure correct ownership for WordPress directories
+    - name: Ensure wp-content directory exists
+      file:
+        path: /var/www/html/wp-content
+        state: directory
+        owner: nginx
+        group: nginx
+        mode: "0775"
+
+    - name: Ensure upgrade directory exists inside wp-content
+      file:
+        path: /var/www/html/wp-content/upgrade
+        state: directory
+        owner: nginx
+        group: nginx
+        mode: "0775"
+
+    - name: Ensure correct ownership for WordPress files
       file:
         path: /var/www/html/
         state: directory
-        owner: root
-        group: root
+        owner: nginx
+        group: nginx
         mode: "0775"
         recurse: yes
+
 
     - name: Configure wp-config.php
       template:
