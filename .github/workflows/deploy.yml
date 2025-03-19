@@ -18,6 +18,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Create Public Key File
+        run: |
+          echo "${{ secrets.MY_KEY_PUB }}" > mykey.pub
+          chmod 600 mykey.pub
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
