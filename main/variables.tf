@@ -243,3 +243,7 @@ variable "ssh_port" {
   type        = list(string)
   description = "ssh port"
 }
+variable "timeout" {
+  type        = number
+  description = "timeout"
+}

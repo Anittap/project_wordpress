@@ -82,3 +82,7 @@ variable "matcher" {
     description = "The HTTP codes to use when checking for a successful response from a target"
     type        = string
 }
+variable "timeout" {
+    description = "The amount of time, in seconds, during which no response means a failed health check"
+    type        = number
+}

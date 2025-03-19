@@ -200,6 +200,7 @@ module "tg" {
   health_check_protocol         = var.health_check_protocol
   unhealthy_threshold           = var.unhealthy_threshold
   matcher                       = var.matcher
+  timeout                       = var.timeout
 }
 module "asg_to_tg_attachment" {
   source = "../modules/tg_to_asg_attatchment"

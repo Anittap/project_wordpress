@@ -17,5 +17,6 @@ resource "aws_lb_target_group" "tg" {
     protocol            = var.health_check_protocol
     unhealthy_threshold = var. unhealthy_threshold
     matcher             = var.matcher
+    timeout             = var.timeout
   }
 }
