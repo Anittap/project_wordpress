@@ -41,7 +41,7 @@ jobs:
       - name: Wait for EC2 instances to start and fetch output again
         run: |
           echo "Waiting for EC2 instances to initialize..."
-          sleep 120
+          sleep 20
           cd main
           terraform apply -auto-approve
 

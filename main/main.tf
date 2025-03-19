@@ -252,4 +252,3 @@ module "bastion_to_wp" {
   referenced_security_group_id = module.bastion_sg.id
 }
 // make subnet count a variable
-//store db password in ssm
