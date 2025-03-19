@@ -18,7 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create Public Key File
+      - name: Create Key File
         run: |
           echo "${{ secrets.MY_KEY_PUB }}" > mykey.pub
           chmod 600 mykey.pub
@@ -46,30 +46,18 @@ jobs:
           echo "BASTION_IP=$(terraform output -raw bastion_public_ip)" >> $GITHUB_ENV
           terraform output -json wordpress_private_ips | jq -r '.[]' > ../ansible/inventory_ips.txt
 
-      - name: Set up Bastion SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.BASTION_PEM }}" > ~/.ssh/bastion.pem
-          chmod 400 ~/.ssh/bastion.pem
-
-      - name: Set up Target Instance SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.TARGET_INSTANCE_PEM }}" > ~/.ssh/target.pem
-          chmod 400 ~/.ssh/target.pem
-
       - name: Generate Ansible Inventory
         run: |
           echo "[wordpress]" > ansible/inventory.ini
           cat ansible/inventory_ips.txt >> ansible/inventory.ini
           echo "" >> ansible/inventory.ini
           echo "[wordpress:vars]" >> ansible/inventory.ini
-          echo "ansible_ssh_common_args='-o ProxyCommand=\"ssh -W %h:%p -q -i ~/.ssh/bastion.pem ubuntu@${{ env.BASTION_IP }}\"'" >> ansible/inventory.ini
+          echo "ansible_ssh_common_args='-o ProxyCommand=\"ssh -W %h:%p -q -i mykey ubuntu@${{ env.BASTION_IP }}\"'" >> ansible/inventory.ini
           echo "ansible_user=ec2-user" >> ansible/inventory.ini
           echo "Generated inventory:"
           cat ansible/inventory.ini
 
       - name: Run Ansible Playbook
         run: |
-          ansible-playbook -i ansible/inventory.ini -u ec2-user --private-key ~/.ssh/target.pem ansible/playbook.yml \
+          ansible-playbook -i ansible/inventory.ini -u ec2-user --private-key mykey ansible/playbook.yml \
             --extra-vars "db_name=${{ env.DB_NAME }} db_host=${{ env.DB_HOST }} db_user=${{ env.DB_USER }} db_pass=${{ env.DB_PASS }}"
