@@ -49,6 +49,7 @@
           server {
               listen 80;
               server_name _;
+
               root /var/www/html/;
               index index.php index.html index.htm;
 
@@ -63,6 +64,11 @@
                   fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
               }
 
+              # Prevent redirect loops by ensuring Nginx doesn’t force HTTPS
+              location /wp-login.php {
+                  rewrite ^ https://$host$request_uri? permanent;
+              }
+
               # Fix for static files
               location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|otf|eot|mp4|webm)$ {
                   root /var/www/html/;
@@ -70,19 +76,9 @@
                   expires max;
                   log_not_found off;
               }
-
-              location = /favicon.ico {
-                  log_not_found off;
-                  access_log off;
-              }
-
-              location = /robots.txt {
-                  allow all;
-                  log_not_found off;
-                  access_log off;
-              }
           }
-      notify: Restart Nginx
+
+
 
     - name: Download WordPress
       get_url:
