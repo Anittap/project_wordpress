@@ -53,6 +53,17 @@
               root /var/www/html/;
               index index.php index.html index.htm;
 
+              # Detect if request came from ALB with HTTPS
+              set $https_redirect 0;
+              if ($http_x_forwarded_proto = "http") {
+                  set $https_redirect 1;
+              }
+
+              # Redirect only if necessary
+              if ($https_redirect = 1) {
+                  return 301 https://$host$request_uri;
+              }
+
               location / {
                   try_files $uri $uri/ /index.php?$args;
               }
@@ -62,11 +73,10 @@
                   fastcgi_pass unix:/run/php-fpm/www.sock;
                   fastcgi_index index.php;
                   fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-              }
-
-              # Prevent redirect loops by ensuring Nginx doesn’t force HTTPS
-              location /wp-login.php {
-                  rewrite ^ https://$host$request_uri? permanent;
+                  
+                  # Inform WordPress it's behind an HTTPS proxy
+                  fastcgi_param HTTPS "on";
+                  fastcgi_param HTTP_X_FORWARDED_PROTO "https";
               }
 
               # Fix for static files
@@ -77,8 +87,6 @@
                   log_not_found off;
               }
           }
-
-
 
     - name: Download WordPress
       get_url:
@@ -118,6 +126,29 @@
         group: nginx
         mode: "0644"
       notify: Restart Nginx
+
+    - name: Add .htaccess file for WordPress
+      copy:
+        dest: /var/www/html/.htaccess
+        content: |
+          # BEGIN WordPress
+          <IfModule mod_rewrite.c>
+          RewriteEngine On
+          RewriteBase /
+          RewriteRule ^index\.php$ - [L]
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule . /index.php [L]
+          </IfModule>
+          # END WordPress
+
+          # Enforce HTTPS and Fix Mixed Content
+          <IfModule mod_headers.c>
+          Header always set Content-Security-Policy "upgrade-insecure-requests"
+          </IfModule>
+        owner: nginx
+        group: nginx
+        mode: "0644"
 
   handlers:
     - name: Restart Nginx
