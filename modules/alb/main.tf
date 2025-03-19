@@ -50,18 +50,7 @@ resource "aws_lb_listener_rule" "host_header" {
 
   condition {
     host_header {
-      values = ["${var.project_environment}.${var.domain_name}"]
+      values = ["${var.project_name}.${var.domain_name}"]
     }
-  }
-}
-resource "aws_route53_record" "alb" {
-  zone_id = var.zone_id
-  name    = "${var.name}.${var.domain_name}"
-  type    = "A"
-
-  alias {
-    name                   = aws_lb.main.dns_name
-    zone_id                = aws_lb.main.zone_id
-    evaluate_target_health = true
   }
 }
