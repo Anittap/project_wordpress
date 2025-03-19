@@ -102,13 +102,12 @@
           - --strip-components=1
     - name: Ensure correct ownership for WordPress directories
       file:
-        path: /var/www/html/wp-content
+        path: /var/www/html/
         state: directory
         owner: nginx
         group: nginx
         mode: "0775"
         recurse: yes
-     
 
     - name: Configure wp-config.php
       template:
