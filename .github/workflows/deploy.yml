@@ -53,7 +53,8 @@ jobs:
           cat ansible/inventory_ips.txt >> ansible/inventory.ini
           echo "" >> ansible/inventory.ini
           echo "[wordpress:vars]" >> ansible/inventory.ini
-          echo "ansible_ssh_common_args='-o ProxyCommand=\"ssh -W %h:%p -q -i mykey ubuntu@${{ env.BASTION_IP }}\"'" >> ansible/inventory.ini
+          echo "ansible_ssh_common_args=\"-o ProxyCommand='ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p -q -i mykey ubuntu@${{ env.BASTION_IP }}'\"" >> ansible/inventory.ini
+
           echo "ansible_user=ec2-user" >> ansible/inventory.ini
           echo "Generated inventory:"
           cat ansible/inventory.ini
@@ -61,5 +62,6 @@ jobs:
 
       - name: Run Ansible Playbook
         run: |
+        
           ansible-playbook -i ansible/inventory.ini -u ec2-user --private-key mykey ansible/playbook.yml \
             --extra-vars "db_name=${{ env.DB_NAME }} db_host=${{ env.DB_HOST }} db_user=${{ env.DB_USER }} db_pass=${{ env.DB_PASS }}"
