@@ -18,7 +18,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ✅ Create Key Files FIRST before Terraform, since Terraform depends on them
       - name: Create Key Files
         run: |
           echo "${{ secrets.MY_KEY_PUB }}" > mykey.pub
@@ -38,6 +37,14 @@ jobs:
         run: |
           cd main
           terraform apply -auto-approve
+            
+      - name: Wait for EC2 instances to start and fetch output again
+        run: |
+          echo "Waiting for EC2 instances to initialize..."
+          sleep 120
+          cd main
+          terraform apply -auto-approve
+
 
       - name: Extract Terraform Outputs
         run: |
@@ -54,7 +61,6 @@ jobs:
          echo "Bastion IP: ${{ env.BASTION_IP }}"
 
 
-      # ✅ Copy the private key and Ansible files to Bastion
       - name: Copy Private Key to Bastion
         run: |
           scp -o StrictHostKeyChecking=no -i mykey mykey ubuntu@${{ env.BASTION_IP }}:~/mykey
@@ -66,7 +72,6 @@ jobs:
           scp -o StrictHostKeyChecking=no -i mykey ansible/inventory_ips.txt ubuntu@${{ env.BASTION_IP }}:~
           scp -o StrictHostKeyChecking=no -i mykey -r ansible ubuntu@${{ env.BASTION_IP }}:~
 
-      # ✅ SSH into Bastion and Run Ansible
       - name: SSH into Bastion and Run Ansible
         run: |
           ssh -t -o StrictHostKeyChecking=no -i mykey ubuntu@${{ env.BASTION_IP }} << 'EOF'
