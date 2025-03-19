@@ -18,11 +18,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create Key File
+      - name: Create Key Files
         run: |
           echo "${{ secrets.MY_KEY_PUB }}" > mykey.pub
           chmod 600 mykey.pub
           echo "${{ secrets.TARGET_INSTANCE_PEM }}" > mykey
+          chmod 600 mykey
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
@@ -47,21 +48,34 @@ jobs:
           echo "BASTION_IP=$(terraform output -raw bastion_public_ip)" >> $GITHUB_ENV
           terraform output -json wordpress_private_ips | jq -r '.[]' > ../ansible/inventory_ips.txt
 
-      - name: Generate Ansible Inventory
+      - name: Run Ansible Playbook from Bastion
         run: |
-          echo "[wordpress]" > ansible/inventory.ini
-          cat ansible/inventory_ips.txt >> ansible/inventory.ini
-          echo "" >> ansible/inventory.ini
-          echo "[wordpress:vars]" >> ansible/inventory.ini
-          echo "ansible_ssh_common_args=\"-o ProxyCommand='ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p -q -i mykey ubuntu@${{ env.BASTION_IP }}'\"" >> ansible/inventory.ini
+          ssh -o StrictHostKeyChecking=no -i mykey ubuntu@${{ env.BASTION_IP }} << 'EOF'
+            echo "Running on $(hostname)"
+            
+            # Ensure Ansible is installed
+            sudo yum install -y ansible
 
-          echo "ansible_user=ec2-user" >> ansible/inventory.ini
-          echo "Generated inventory:"
-          cat ansible/inventory.ini
-          cat mykey
+            # Create Ansible directory
+            mkdir -p ~/ansible
+            cd ~/ansible
 
-      - name: Run Ansible Playbook
-        run: |
-        
-          ansible-playbook -i ansible/inventory.ini -u ec2-user --private-key mykey ansible/playbook.yml \
-            --extra-vars "db_name=${{ env.DB_NAME }} db_host=${{ env.DB_HOST }} db_user=${{ env.DB_USER }} db_pass=${{ env.DB_PASS }}"
+            # Copy the inventory file
+            echo "[wordpress]" > inventory.ini
+            cat <<EOL >> inventory.ini
+          $(cat ansible/inventory_ips.txt)
+          EOL
+            echo "" >> inventory.ini
+            echo "[wordpress:vars]" >> inventory.ini
+            echo "ansible_user=ec2-user" >> inventory.ini
+
+            # Copy the Ansible playbook from GitHub Runner to Bastion
+            cat <<'EOP' > playbook.yml
+          $(cat ansible/playbook.yml)
+          EOP
+
+            # Run Ansible Playbook
+            echo "Executing Ansible Playbook..."
+            ansible-playbook -i inventory.ini -u ec2-user --private-key mykey playbook.yml \
+              --extra-vars "db_name=${{ env.DB_NAME }} db_host=${{ env.DB_HOST }} db_user=${{ env.DB_USER }} db_pass=${{ env.DB_PASS }}"
+          EOF
