@@ -100,23 +100,15 @@
         remote_src: yes
         extra_opts:
           - --strip-components=1
-
-    - name: Set correct permissions for WordPress files
+    - name: Ensure correct ownership for WordPress directories
       file:
-        path: /var/www/html/
-        owner: nginx
-        group: nginx
-        mode: "0755"
-        recurse: yes
-
-    - name: Set correct permissions for uploads directory
-      file:
-        path: /var/www/html/wp-content/uploads
+        path: /var/www/html/wp-content
         state: directory
         owner: nginx
         group: nginx
         mode: "0775"
         recurse: yes
+     
 
     - name: Configure wp-config.php
       template:
