@@ -37,6 +37,24 @@
         - nginx
         - php-fpm
 
+    - name: Update PHP-FPM user and group
+      lineinfile:
+        path: /etc/php-fpm.d/www.conf
+        regexp: '^user = '
+        line: 'user = nginx'
+
+    - name: Update PHP-FPM group
+      lineinfile:
+        path: /etc/php-fpm.d/www.conf
+        regexp: '^group = '
+        line: 'group = nginx'
+
+    - name: Restart PHP-FPM to apply changes
+      service:
+        name: php-fpm
+        state: restarted
+
+
     - name: Remove default index.html
       file:
         path: /usr/share/nginx/html/index.html
@@ -53,13 +71,11 @@
               root /var/www/html/;
               index index.php index.html index.htm;
 
-              # Detect if request came from ALB with HTTPS
               set $https_redirect 0;
               if ($http_x_forwarded_proto = "http") {
                   set $https_redirect 1;
               }
 
-              # Redirect only if necessary
               if ($https_redirect = 1) {
                   return 301 https://$host$request_uri;
               }
@@ -73,13 +89,10 @@
                   fastcgi_pass unix:/run/php-fpm/www.sock;
                   fastcgi_index index.php;
                   fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                  
-                  # Inform WordPress it's behind an HTTPS proxy
                   fastcgi_param HTTPS "on";
                   fastcgi_param HTTP_X_FORWARDED_PROTO "https";
               }
 
-              # Fix for static files
               location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|otf|eot|mp4|webm)$ {
                   root /var/www/html/;
                   access_log off;
@@ -87,6 +100,7 @@
                   log_not_found off;
               }
           }
+      notify: Restart Nginx
 
     - name: Download WordPress
       get_url:
@@ -116,14 +130,6 @@
         group: nginx
         mode: "0775"
 
-    - name: Ensure upgrade directory exists inside wp-content
-      file:
-        path: /var/www/html/wp-content/upgrade
-        state: directory
-        owner: nginx
-        group: nginx
-        mode: "0775"
-
     - name: Configure wp-config.php
       template:
         src: templates/wp-config.php.j2
@@ -148,13 +154,21 @@
           </IfModule>
           # END WordPress
 
-          # Enforce HTTPS and Fix Mixed Content
           <IfModule mod_headers.c>
           Header always set Content-Security-Policy "upgrade-insecure-requests"
           </IfModule>
-        owner: root
-        group: root
+        owner: nginx
+        group: nginx
         mode: "0644"
+
+    - name: Ensure correct permissions on WordPress directories
+      file:
+        path: /var/www/html/wp-content
+        state: directory
+        owner: nginx
+        group: nginx
+        mode: "0775"
+        recurse: yes
 
   handlers:
     - name: Restart Nginx
