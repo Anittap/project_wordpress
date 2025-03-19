@@ -17,7 +17,6 @@
       yum:
         name:
           - nginx
-          - mysql
           - php-fpm
           - php-mysqlnd
           - unzip
