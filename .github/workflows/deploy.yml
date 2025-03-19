@@ -1,0 +1,68 @@
+name: Deploy WordPress
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-east-1
+      TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: |
+          cd main
+          terraform init
+
+      - name: Terraform Apply
+        run: |
+          cd main
+          terraform apply -auto-approve
+
+      - name: Extract Terraform Outputs
+        run: |
+          cd main
+          echo "DB_NAME=$(terraform output -raw db_name)" >> $GITHUB_ENV
+          echo "DB_HOST=$(terraform output -raw rds_endpoint)" >> $GITHUB_ENV
+          echo "DB_USER=$(terraform output -raw db_username)" >> $GITHUB_ENV
+          echo "DB_PASS=$(terraform output -raw db_password)" >> $GITHUB_ENV
+          echo "BASTION_IP=$(terraform output -raw bastion_public_ip)" >> $GITHUB_ENV
+          terraform output -json wordpress_private_ips | jq -r '.[]' > ansible/inventory_ips.txt
+
+      - name: Set up Bastion SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.BASTION_PEM }}" > ~/.ssh/bastion.pem
+          chmod 600 ~/.ssh/bastion.pem
+
+      - name: Set up Target Instance SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.TARGET_INSTANCE_PEM }}" > ~/.ssh/target.pem
+          chmod 600 ~/.ssh/target.pem
+
+      - name: Generate Ansible Inventory
+        run: |
+          echo "[wordpress]" > ansible/inventory.ini
+          cat ansible/inventory_ips.txt >> ansible/inventory.ini
+          echo "" >> ansible/inventory.ini
+          echo "[wordpress:vars]" >> ansible/inventory.ini
+          echo "ansible_ssh_common_args='-o ProxyCommand=\"ssh -W %h:%p -q -i ~/.ssh/bastion.pem ubuntu@${{ env.BASTION_IP }}\"'" >> ansible/inventory.ini
+          echo "Generated inventory:"
+          cat ansible/inventory.ini
+
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook -i ansible/inventory.ini -u ec2-user --private-key ~/.ssh/target.pem ansible/playbook.yml \
+            --extra-vars "db_name=${{ env.DB_NAME }} db_host=${{ env.DB_HOST }} db_user=${{ env.DB_USER }} db_pass=${{ env.DB_PASS }}"

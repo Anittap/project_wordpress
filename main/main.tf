@@ -159,22 +159,27 @@ module "wp_asg" {
 module "db_instance" {
   source            = "../modules/rds"
   project_name      = var.project_name
-  db_name           = var.db_name
+  db_name           = jsondecode(data.aws_secretsmanager_secret_version.db_credentials.secret_string)["database"]
   allocated_storage = var.allocated_storage
   storage_type      = var.storage_type
   engine            = var.engine
   engine_version    = var.engine_version
   instance_class    = var.instance_class
-  db_username       = var.db_username
-  db_password       = var.db_password
+  db_username       = jsondecode(data.aws_secretsmanager_secret_version.db_credentials.secret_string)["username"]
+  db_password       = jsondecode(data.aws_secretsmanager_secret_version.db_credentials.secret_string)["password"]
   subnet_ids        = module.db_vpc.private_subnet_ids
   sg_id             = module.db_sg.id
 }
-module "db_zone" {
-  source            = "../modules/db_hosted_zone"
-  zone_id            = data.aws_route53_zone.main.id
-  rds_record_name   = "db"
-  rds_endpoint      = module.db_instance.address
+module "dns" {
+  source          = "../modules/route53"
+  zone_id         = data.aws_route53_zone.main.id
+  rds_record_name = "db"
+  rds_endpoint    = module.db_instance.address
+  project_name    = var.project_name
+  domain_name     = data.aws_route53_zone.main.name
+  lb_dns_name     = module.alb.dns_name
+  lb_zone_id      = module.alb.zone_id
+
 }
 module "tg" {
   source                        = "../modules/tg"
@@ -218,6 +223,33 @@ module "alb" {
   http_listener_port         = var.http_listener_port
   type                       = var.type
 }
-
+module "bastion_sg" {
+  source              = "../modules/sg/default_sg"
+  project_name        = var.project_name
+  project_environment = var.project_environment
+  name                = "bastion"
+  description         = "Bastion security group"
+  vpc_id              = module.wp_vpc.vpc_id
+  sg_ports            = var.bastion_sg_ports
+  ingress_cidr_ipv4   = var.bastion_ingress_cidr_ipv4
+  egress_cidr_ipv4    = var.bastion_egress_cidr_ipv4
+  egress_port         = var.bastion_egress_port
+}
+module "bastion" {
+  source            = "../modules/bastion"
+  ami               = var.ami
+  instance_type     = "t2.small"
+  key_name          = module.key_pair.key_name
+  public_subnet_id  = module.wp_vpc.public_subnet_ids[0]
+  security_group_id = module.bastion_sg.id
+  project_name      = var.project_name
+  project_environment = var.project_environment
+}
+module "bastion_to_wp" {
+  source                   = "../modules/sg/bastion_sg"
+  sg_ports                  = var.ssh_port
+  sg_id        = module.wp_sg.id
+  referenced_security_group_id = module.bastion_sg.id
+}
 // make subnet count a variable
 //store db password in ssm

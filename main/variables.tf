@@ -104,10 +104,6 @@ variable "instance_type" {
   type        = map(any)
   description = "map of instance type"
 }
-variable "db_name" {
-  type        = string
-  description = "Database name"
-}
 
 variable "allocated_storage" {
   type        = number
@@ -134,15 +130,6 @@ variable "instance_class" {
   description = "Database instance class"
 }
 
-variable "db_username" {
-  type        = string
-  description = "Database username"
-}
-
-variable "db_password" {
-  type        = string
-  description = "Database password"
-}
 variable "load_balancing_algorithm_type" {
   type        = string
   description = "Load balancing algorithm type"
@@ -227,4 +214,32 @@ variable "http_listener_port" {
 variable "type" {
   type        = bool
   description = "Type of the load balancer"
+}
+variable "bastion_sg_ports" {
+  type        = list(string)
+  description = "Bastion security group ports"
+}
+
+variable "bastion_ingress_cidr_ipv4" {
+  type        = string
+  description = "Ingress CIDR blocks for bastion"
+}
+
+variable "bastion_egress_cidr_ipv4" {
+  type        = string
+  description = "Egress CIDR blocks for bastion"
+}
+
+variable "bastion_egress_port" {
+  type        = string
+  description = "Egress port for bastion"
+}
+
+variable "ami" {
+  type        = string
+  description = "AMI for the bastion host"
+}
+variable "ssh_port" {
+  type        = list(string)
+  description = "ssh port"
 }
