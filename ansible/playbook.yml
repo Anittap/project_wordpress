@@ -28,6 +28,37 @@
         name: nginx
         state: started
         enabled: yes
+    - name: Remove default index.html
+      file:
+        path: /usr/share/nginx/html/index.html
+        state: absent
+
+    - name: Configure Nginx for WordPress
+      copy:
+        dest: /etc/nginx/conf.d/wordpress.conf
+        content: |
+          server {
+              listen 80;
+              server_name _;
+              root /var/www/html/wordpress;
+              index index.php index.html index.htm;
+
+              location / {
+                  try_files $uri $uri/ /index.php?$args;
+              }
+
+              location ~ \.php$ {
+                  include fastcgi_params;
+                  fastcgi_pass unix:/run/php-fpm/www.sock;
+                  fastcgi_index index.php;
+                  fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+              }
+
+              location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|otf|eot)$ {
+                  expires max;
+                  log_not_found off;
+              }
+          }
 
     - name: Download WordPress
       get_url:
@@ -39,10 +70,13 @@
         src: /tmp/wordpress.tar.gz
         dest: /var/www/html/
         remote_src: yes
+        extra_opts:
+          - --strip-components=1
+
 
     - name: Set ownership for WordPress files
       file:
-        path: /var/www/html/wordpress
+        path: /var/www/html/
         owner: nginx
         group: nginx
         mode: "0755"
