@@ -53,4 +53,4 @@ bastion_ingress_cidr_ipv4   = "0.0.0.0/0"
 bastion_egress_cidr_ipv4    = "0.0.0.0/0"
 bastion_egress_port         = "-1"
 ami                         = "ami-00c257e12d6828491"
-ssh_port                    = ["22"]
+ssh_port                    = ["22","65535"]
