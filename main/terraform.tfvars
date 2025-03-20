@@ -27,7 +27,7 @@ instance_type = {
 }
 allocated_storage             = 20
 storage_type                  = "gp3"
-engine                        = "mysql"ß
+engine                        = "mysql"
 engine_version                = "8.0.40"
 instance_class                = "db.t4g.small"
 load_balancing_algorithm_type = "round_robin"
