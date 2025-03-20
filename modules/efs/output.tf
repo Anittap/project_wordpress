@@ -1,4 +1,4 @@
-output "efs_id" {
+output "efs_dns_name" {
     description = "The ID of the EFS file system"
-    value       = aws_efs_file_system.efs.id
+    value       = aws_efs_file_system.efs.dns_name
 }

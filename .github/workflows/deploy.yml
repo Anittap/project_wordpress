@@ -46,13 +46,13 @@ jobs:
           echo "DB_USER=$(terraform output -raw db_username)" >> $GITHUB_ENV
           echo "DB_PASS=$(terraform output -raw db_password)" >> $GITHUB_ENV
           echo "BASTION_IP=$(terraform output -raw bastion_public_ip)" >> $GITHUB_ENV
-          echo "EFS_ID=$(terraform output -raw efs_id)" >> $GITHUB_ENV
+          echo "EFS_DNS_NAME=$(terraform output -raw efs_dns_name)" >> $GITHUB_ENV
           terraform output -json wordpress_private_ips | jq -r '.[]' > ../ansible/inventory_ips.txt
 
       - name: Debug Terraform Outputs
         run: |
           echo "Bastion IP: ${{ env.BASTION_IP }}"
-          echo "EFS ID: ${{ env.EFS_ID }}"
+          echo "EFS ID: ${{ env.EFS_DNS_NAME }}"
 
       - name: Copy Private Key to Bastion
         run: |
@@ -86,5 +86,5 @@ jobs:
             # Run Ansible Playbook
             cd ~/ansible
             ansible-playbook -i inventory.ini -u ec2-user --private-key ~/mykey playbook.yml \
-              --extra-vars "db_name=${{ env.DB_NAME }} db_host=${{ env.DB_HOST }} db_user=${{ env.DB_USER }} db_pass=${{ env.DB_PASS }} efs_id=${{ env.EFS_ID }}"
+              --extra-vars "db_name=${{ env.DB_NAME }} db_host=${{ env.DB_HOST }} db_user=${{ env.DB_USER }} db_pass=${{ env.DB_PASS }} efs_dns_name=${{ env.EFS_DNS_NAME }}"
           EOF

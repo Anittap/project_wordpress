@@ -22,6 +22,6 @@ output "bastion_public_ip" {
   value = module.bastion.public_ip
 }
 
-output "efs_id" {
-  value = module.efs.efs_id
+output "efs_dns_name" {
+  value = module.efs.efs_dns_name
 }
