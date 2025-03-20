@@ -37,15 +37,7 @@ jobs:
         run: |
           cd main
           terraform apply -auto-approve
-            
-      - name: Wait for EC2 instances to start and fetch output again
-        run: |
-          echo "Waiting for EC2 instances to initialize..."
-          sleep 20
-          cd main
-          terraform apply -auto-approve
-
-
+          terraform refresh
       - name: Extract Terraform Outputs
         run: |
           cd main
@@ -54,12 +46,13 @@ jobs:
           echo "DB_USER=$(terraform output -raw db_username)" >> $GITHUB_ENV
           echo "DB_PASS=$(terraform output -raw db_password)" >> $GITHUB_ENV
           echo "BASTION_IP=$(terraform output -raw bastion_public_ip)" >> $GITHUB_ENV
+          echo "EFS_ID=$(terraform output -raw efs_id)" >> $GITHUB_ENV
           terraform output -json wordpress_private_ips | jq -r '.[]' > ../ansible/inventory_ips.txt
 
-      - name: Debug Bastion IP
+      - name: Debug Terraform Outputs
         run: |
-         echo "Bastion IP: ${{ env.BASTION_IP }}"
-
+          echo "Bastion IP: ${{ env.BASTION_IP }}"
+          echo "EFS ID: ${{ env.EFS_ID }}"
 
       - name: Copy Private Key to Bastion
         run: |
@@ -88,9 +81,10 @@ jobs:
             echo "ansible_user=ec2-user" >> ~/ansible/inventory.ini
             echo "ansible_ssh_private_key_file=~/mykey" >> ~/ansible/inventory.ini
             echo "ansible_ssh_common_args=\"-o StrictHostKeyChecking=no\"" >> ~/ansible/inventory.ini
+            echo "efs_id=${{ env.EFS_ID }}" >> ~/ansible/inventory.ini
 
             # Run Ansible Playbook
             cd ~/ansible
             ansible-playbook -i inventory.ini -u ec2-user --private-key ~/mykey playbook.yml \
-              --extra-vars "db_name=${{ env.DB_NAME }} db_host=${{ env.DB_HOST }} db_user=${{ env.DB_USER }} db_pass=${{ env.DB_PASS }}"
+              --extra-vars "db_name=${{ env.DB_NAME }} db_host=${{ env.DB_HOST }} db_user=${{ env.DB_USER }} db_pass=${{ env.DB_PASS }} efs_id=${{ env.EFS_ID }}"
           EOF
