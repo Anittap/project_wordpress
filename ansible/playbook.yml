@@ -7,6 +7,7 @@
     wp_db_user: "{{ db_user }}"
     wp_db_password: "{{ db_pass }}"
     wp_db_host: "{{ db_host }}"
+    efs_id: "{{ efs_id }}"
 
   tasks:
     - name: Update yum cache
@@ -26,6 +27,7 @@
           - php-curl
           - unzip
           - wget
+          - amazon-efs-utils
         state: present
 
     - name: Start and enable Nginx & PHP-FPM
@@ -53,7 +55,6 @@
       service:
         name: php-fpm
         state: restarted
-
 
     - name: Remove default index.html
       file:
@@ -115,13 +116,6 @@
         extra_opts:
           - --strip-components=1
 
-    - name: Set ownership for WordPress files
-      file:
-        path: /var/www/html
-        owner: nginx
-        group: nginx
-        recurse: yes
-
     - name: Ensure wp-content directory exists
       file:
         path: /var/www/html/wp-content
@@ -129,6 +123,24 @@
         owner: nginx
         group: nginx
         mode: "0775"
+
+    - name: Mount EFS to /var/www/html/wp-content
+      lineinfile:
+        path: /etc/fstab
+        line: "{{ efs_id }}:/ /var/www/html/wp-content efs _netdev,noresvport 0 0"
+        state: present
+
+    - name: Ensure EFS is mounted
+      command: mount -a
+      changed_when: false
+
+    - name: Set ownership for EFS-mounted wp-content
+      file:
+        path: /var/www/html/wp-content
+        owner: nginx
+        group: nginx
+        mode: "0775"
+        recurse: yes
 
     - name: Configure wp-config.php
       template:
