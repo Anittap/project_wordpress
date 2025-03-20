@@ -134,13 +134,13 @@
       command: mount -a
       changed_when: false
 
-    - name: Set ownership for EFS-mounted wp-content
-      file:
-        path: /var/www/html/wp-content
-        owner: nginx
-        group: nginx
-        mode: "0775"
-        recurse: yes
+    # - name: Set ownership for EFS-mounted wp-content
+    #   file:
+    #     path: /var/www/html/wp-content
+    #     owner: nginx
+    #     group: nginx
+    #     mode: "0775"
+    #     recurse: yes
 
     - name: Configure wp-config.php
       template:
