@@ -264,5 +264,12 @@ module "bastion_to_wp" {
   sg_id                        = module.wp_sg.id
   referenced_security_group_id = module.bastion_sg.id
 }
+module "efs" {
+  source              = "../modules/efs"
+  project_name        = var.project_name
+  project_environment = var.project_environment
+  private_subnet_ids  = module.wp_vpc.private_subnet_ids
+  efs_sg_id           = module.efs_sg.id
+}
 // fix wp-admin error
 // create nacl

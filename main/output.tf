@@ -21,3 +21,7 @@ output "wordpress_private_ips" {
 output "bastion_public_ip" {
   value = module.bastion.public_ip
 }
+
+output "efs_id" {
+  value = module.efs.efs_id
+}
