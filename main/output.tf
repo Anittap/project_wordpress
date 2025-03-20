@@ -18,6 +18,6 @@ output "rds_endpoint" {
 output "wordpress_private_ips" {
   value = data.aws_instances.wordpress_instances.private_ips
 }
-output bastion_public_ip {
-  value       = module.bastion.public_ip
+output "bastion_public_ip" {
+  value = module.bastion.public_ip
 }

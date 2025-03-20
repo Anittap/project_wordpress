@@ -117,6 +117,18 @@ module "wp_sg" {
   egress_cidr_ipv4    = var.wp_egress_cidr_ipv4
   egress_port         = var.wp_egress_port
 }
+module "efs_sg" {
+  source              = "../modules/sg/sg_reference_sg"
+  project_name        = var.project_name
+  project_environment = var.project_environment
+  name                = "efs"
+  description         = "EFS security group"
+  vpc_id              = module.wp_vpc.vpc_id
+  sg_ports            = var.efs_sg_ports
+  sg_reference_id     = module.wp_sg.id
+  egress_cidr_ipv4    = var.efs_egress_cidr_ipv4
+  egress_port         = var.efs_egress_port
+}
 module "db_sg" {
   source              = "../modules/sg/sg_reference_sg"
   project_name        = var.project_name
@@ -237,19 +249,19 @@ module "bastion_sg" {
   egress_port         = var.bastion_egress_port
 }
 module "bastion" {
-  source            = "../modules/bastion"
-  ami               = var.ami
-  instance_type     = "t2.small"
-  key_name          = module.key_pair.key_name
-  public_subnet_id  = module.wp_vpc.public_subnet_ids[0]
-  security_group_id = module.bastion_sg.id
-  project_name      = var.project_name
+  source              = "../modules/bastion"
+  ami                 = var.ami
+  instance_type       = "t2.small"
+  key_name            = module.key_pair.key_name
+  public_subnet_id    = module.wp_vpc.public_subnet_ids[0]
+  security_group_id   = module.bastion_sg.id
+  project_name        = var.project_name
   project_environment = var.project_environment
 }
 module "bastion_to_wp" {
-  source                   = "../modules/sg/bastion_sg"
-  sg_ports                  = var.ssh_port
-  sg_id        = module.wp_sg.id
+  source                       = "../modules/sg/bastion_sg"
+  sg_ports                     = var.ssh_port
+  sg_id                        = module.wp_sg.id
   referenced_security_group_id = module.bastion_sg.id
 }
 // fix wp-admin error

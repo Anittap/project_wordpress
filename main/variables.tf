@@ -247,3 +247,17 @@ variable "timeout" {
   type        = number
   description = "timeout"
 }
+variable "efs_sg_ports" {
+  type        = list(string)
+  description = "EFS security group ports"
+}
+
+variable "efs_egress_cidr_ipv4" {
+  type        = string
+  description = "Egress CIDR blocks for EFS"
+}
+
+variable "efs_egress_port" {
+  type        = string
+  description = "Egress port for EFS"
+}
