@@ -103,6 +103,27 @@
               }
           }
       notify: Restart Nginx
+    - name: Check if wp-content is empty
+      stat:
+        path: /var/www/html/wp-content
+      register: wp_content_stat
+
+    - name: Populate wp-content from local WordPress package
+      copy:
+        src: /var/www/html/wp-content/
+        dest: /var/www/html/wp-content/
+        remote_src: yes
+      when: wp_content_stat.stat.isdir is not defined or wp_content_stat.stat.size == 0
+
+    - name: Mount EFS to /var/www/html/wp-content
+      lineinfile:
+        path: /etc/fstab
+        line: "{{ efs_dns_name }}:/ /var/www/html/wp-content nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,_netdev 0 0"
+        state: present
+
+    - name: Ensure EFS is mounted
+      command: mount -a
+      changed_when: false
 
     - name: Download WordPress
       get_url:
@@ -116,17 +137,6 @@
         remote_src: yes
         extra_opts:
           - --strip-components=1
-
-
-    - name: Mount EFS to /var/www/html/wp-content
-      lineinfile:
-        path: /etc/fstab
-        line: "{{ efs_dns_name }}:/ /var/www/html/wp-content nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,_netdev 0 0"
-        state: present
-
-    - name: Ensure EFS is mounted
-      command: mount -a
-      changed_when: false
 
     - name: Configure wp-config.php
       template:
