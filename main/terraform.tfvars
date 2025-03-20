@@ -18,7 +18,7 @@ db_egress_cidr_ipv4          = "0.0.0.0/0"
 db_egress_port               = "-1"
 wp_max_size                  = 5
 wp_min_size                  = 1
-wp_desired_size              = 0
+wp_desired_size              = 1
 wp_health_check_grace_period = 300
 wp_enable_elb_health_checks  = { "production" = true, "development" = false }
 instance_type = {
