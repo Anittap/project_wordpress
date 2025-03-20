@@ -28,6 +28,7 @@
           - unzip
           - wget
           - amazon-efs-utils
+          - rsync
         state: present
 
     - name: Start and enable Nginx & PHP-FPM
