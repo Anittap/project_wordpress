@@ -127,20 +127,20 @@
     - name: Mount EFS to /var/www/html/wp-content
       lineinfile:
         path: /etc/fstab
-        line: "{{ efs_id }}:/ /var/www/html/wp-content efs _netdev,noresvport 0 0"
+        line: "{{ efs_id }}:/ /var/www/html/wp-content efs _netdev,noresvport,uid=nginx,gid=nginx 0 0 0 0"
         state: present
 
     - name: Ensure EFS is mounted
       command: mount -a
       changed_when: false
 
-    # - name: Set ownership for EFS-mounted wp-content
-    #   file:
-    #     path: /var/www/html/wp-content
-    #     owner: nginx
-    #     group: nginx
-    #     mode: "0775"
-    #     recurse: yes
+    - name: Set ownership for EFS-mounted wp-content
+      file:
+        path: /var/www/html/wp-content
+        owner: nginx
+        group: nginx
+        mode: "0775"
+        recurse: yes
 
     - name: Configure wp-config.php
       template:
