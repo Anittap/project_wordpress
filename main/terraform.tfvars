@@ -18,7 +18,7 @@ db_egress_cidr_ipv4          = "0.0.0.0/0"
 db_egress_port               = "-1"
 wp_max_size                  = 5
 wp_min_size                  = 1
-wp_desired_size              = 3
+wp_desired_size              = 1
 wp_health_check_grace_period = 300
 wp_enable_elb_health_checks  = { "production" = true, "development" = false }
 instance_type = {
@@ -27,7 +27,7 @@ instance_type = {
 }
 allocated_storage             = 20
 storage_type                  = "gp3"
-engine                        = "mysql"
+engine                        = "mysql"ß
 engine_version                = "8.0.40"
 instance_class                = "db.t4g.small"
 load_balancing_algorithm_type = "round_robin"
