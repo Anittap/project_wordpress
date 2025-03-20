@@ -150,6 +150,15 @@
       command: >
         rsync -a /tmp/wordpress/wp-content/ /var/www/html/wp-content/
 
+    - name: Fix permissions on files (and subdirectories)
+      file:
+        path: /var/www/html/wp-content
+        state: directory
+        owner: nginx
+        group: nginx
+        mode: '0755'
+        recurse: yes
+
     - name: Configure wp-config.php
       template:
         src: templates/wp-config.php.j2
